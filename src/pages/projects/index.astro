@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<BaseLayout title="Projects" description="Open-source security tools and research projects.">
+  <div class="container-wide py-12 lg:py-16">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Projects' }]} />
+    <h1 class="mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Projects</h1>
+    <p class="mt-4 max-w-2xl text-foreground-secondary">
+      Open-source tooling developed to support security research, detection engineering,
+      and forensic analysis workflows.
+    </p>
+
+    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {projects.map((project) => (
+        <ProjectCard project={project} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>

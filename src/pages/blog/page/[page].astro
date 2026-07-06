@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import ArticleCard from '../../../components/ArticleCard.astro';
+import Pagination from '../../../components/Pagination.astro';
+import { getPublishedPosts } from '../../../utils/posts';
+import type { GetStaticPaths } from 'astro';
+
+export const getStaticPaths = (async () => {
+  const postsPerPage = 6;
+  const posts = await getPublishedPosts();
+  const totalPages = Math.ceil(posts.length / postsPerPage);
+  if (totalPages <= 1) return [];
+
+  return Array.from({ length: totalPages - 1 }, (_, i) => {
+    const page = i + 2;
+    const start = (page - 1) * postsPerPage;
+    return {
+      params: { page: String(page) },
+      props: {
+        posts: posts.slice(start, start + postsPerPage),
+        currentPage: page,
+        totalPages,
+      },
+    };
+  });
+}) satisfies GetStaticPaths;
+
+const { posts, currentPage, totalPages } = Astro.props;
+---
+
+<BaseLayout title={`Blog — Page ${currentPage}`} description="Security research blog with technical write-ups and analysis.">
+  <div class="container-wide py-12 lg:py-16">
+    <Breadcrumbs
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Blog', href: '/blog/' },
+        { label: `Page ${currentPage}` },
+      ]}
+    />
+    <h1 class="mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+      Blog — Page {currentPage}
+    </h1>
+
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {posts.map((post) => (
+        <ArticleCard post={post} />
+      ))}
+    </div>
+
+    <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/blog" />
+  </div>
+</BaseLayout>

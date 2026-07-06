@@ -1,0 +1,50 @@
+<div class="code-block-enhancer">
+  <slot />
+</div>
+
+<script>
+  function enhanceCodeBlocks() {
+    const figures = document.querySelectorAll('figure[data-rehype-pretty-code-figure]');
+
+    figures.forEach((figure) => {
+      if (figure.querySelector('.copy-btn')) return;
+
+      const pre = figure.querySelector('pre');
+      if (!pre) return;
+
+      const code = pre.querySelector('code');
+      const text = code?.textContent ?? '';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'relative group';
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className =
+        'copy-btn absolute right-3 top-3 rounded-md border border-border bg-surface-elevated px-2 py-1 text-xs text-muted opacity-0 transition-opacity group-hover:opacity-100 hover:text-accent focus:opacity-100';
+      btn.textContent = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+
+      btn.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+        }, 2000);
+      });
+
+      figure.parentNode?.insertBefore(wrapper, figure);
+      wrapper.appendChild(figure);
+      wrapper.appendChild(btn);
+    });
+  }
+
+  enhanceCodeBlocks();
+  document.addEventListener('astro:page-load', enhanceCodeBlocks);
+</script>
+
+<style is:global>
+  figure[data-rehype-pretty-code-figure] {
+    position: relative;
+  }
+</style>

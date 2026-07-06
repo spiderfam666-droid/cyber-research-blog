@@ -1,0 +1,33 @@
+---
+import { RESEARCH_CATEGORIES } from '../consts';
+
+interface Props {
+  slug: string;
+  count?: number;
+}
+
+const category = RESEARCH_CATEGORIES.find((c) => c.slug === Astro.props.slug);
+const count = Astro.props.count ?? 0;
+
+if (!category) return null;
+---
+
+<a
+  href={`${import.meta.env.BASE_URL}categories/${category.slug}/`}
+  class="group flex flex-col rounded-xl border border-border bg-surface-elevated p-5 transition-all hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5"
+>
+  <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 text-accent">
+    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+    </svg>
+  </div>
+  <h3 class="font-semibold text-foreground group-hover:text-accent">{category.name}</h3>
+  <p class="mt-2 flex-1 text-sm text-foreground-secondary line-clamp-2">
+    {category.description}
+  </p>
+  {count > 0 && (
+    <p class="mt-3 text-xs text-muted">
+      {count} {count === 1 ? 'article' : 'articles'}
+    </p>
+  )}
+</a>

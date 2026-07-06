@@ -1,0 +1,33 @@
+---
+interface Props {
+  items: {
+    year: string;
+    entries: { title: string; org?: string; period: string; description?: string }[];
+  }[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="relative space-y-8 before:absolute before:left-[7px] before:top-2 before:h-[calc(100%-1rem)] before:w-px before:bg-border">
+  {items.map((group) => (
+    <div>
+      <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-accent">{group.year}</h3>
+      <div class="space-y-6">
+        {group.entries.map((entry) => (
+          <div class="relative pl-8">
+            <span class="absolute left-0 top-1.5 h-3.5 w-3.5 rounded-full border-2 border-accent bg-surface" />
+            <p class="font-medium text-foreground">{entry.title}</p>
+            {entry.org && (
+              <p class="text-sm text-accent">{entry.org}</p>
+            )}
+            <p class="text-xs text-muted">{entry.period}</p>
+            {entry.description && (
+              <p class="mt-1 text-sm text-foreground-secondary">{entry.description}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  ))}
+</div>

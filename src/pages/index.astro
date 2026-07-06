@@ -1,0 +1,143 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import CategoryCard from '../components/CategoryCard.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { SITE, RESEARCH_CATEGORIES } from '../consts';
+import { getPublishedPosts } from '../utils/posts';
+import { getCollection } from 'astro:content';
+import { assetUrl } from '../utils/assets';
+
+const posts = await getPublishedPosts();
+const projects = await getCollection('projects');
+const featuredProject = projects.find((p) => p.data.featured) ?? projects[0];
+const latestResearch = posts.slice(0, 3);
+const latestPosts = posts.slice(0, 6);
+
+const categoryCounts = RESEARCH_CATEGORIES.map((cat) => ({
+  slug: cat.slug,
+  count: posts.filter((p) =>
+    p.data.categories.some(
+      (c) => c.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === cat.slug
+    )
+  ).length,
+}));
+---
+
+<BaseLayout title="Home">
+  <section class="border-b border-border">
+    <div class="container-wide py-20 lg:py-28">
+      <div class="max-w-3xl">
+        <p class="mb-4 text-sm font-medium uppercase tracking-widest text-accent">
+          Security Research
+        </p>
+        <h1 class="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+          {SITE.author}
+        </h1>
+        <p class="mt-2 text-xl text-accent">{SITE.role}</p>
+        <p class="mt-6 text-lg leading-relaxed text-foreground-secondary">
+          {SITE.description}
+        </p>
+        <div class="mt-8 flex flex-wrap gap-4">
+          <a
+            href={`${import.meta.env.BASE_URL}research/`}
+            class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-accent-hover"
+          >
+            View Research
+          </a>
+          <a
+            href={`${import.meta.env.BASE_URL}about/`}
+            class="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground hover:border-accent/50"
+          >
+            About Me
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-16">
+    <div class="mb-8 flex items-end justify-between">
+      <div>
+        <h2 class="text-2xl font-semibold text-foreground">Latest Research</h2>
+        <p class="mt-1 text-sm text-foreground-secondary">
+          In-depth analysis of offensive and defensive security topics
+        </p>
+      </div>
+      <a href={`${import.meta.env.BASE_URL}blog/`} class="hidden text-sm text-accent hover:underline sm:block">
+        View all →
+      </a>
+    </div>
+    <div class="grid gap-6 lg:grid-cols-3">
+      {latestResearch.map((post, i) => (
+        <ArticleCard post={post} featured={i === 0} />
+      ))}
+    </div>
+  </section>
+
+  {featuredProject && (
+    <section class="border-y border-border bg-surface-elevated/30 py-16">
+      <div class="container-wide">
+        <p class="mb-2 text-sm font-medium uppercase tracking-wider text-accent">Featured Project</p>
+        <h2 class="mb-8 text-2xl font-semibold text-foreground">{featuredProject.data.title}</h2>
+        <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
+          <div>
+            <p class="text-foreground-secondary">{featuredProject.data.description}</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              {featuredProject.data.technologies.map((tech) => (
+                <span class="rounded bg-surface px-2 py-1 text-xs font-mono text-muted">{tech}</span>
+              ))}
+            </div>
+            <div class="mt-6 flex gap-4">
+              {featuredProject.data.github && (
+                <a href={featuredProject.data.github} target="_blank" rel="noopener noreferrer" class="text-sm text-accent hover:underline">
+                  View on GitHub
+                </a>
+              )}
+              <a href={`${import.meta.env.BASE_URL}projects/${featuredProject.id}/`} class="text-sm text-accent hover:underline">
+                Project details →
+              </a>
+            </div>
+          </div>
+          {featuredProject.data.coverImage && (
+            <img
+              src={assetUrl(featuredProject.data.coverImage)}
+              alt=""
+              class="rounded-xl border border-border"
+              loading="lazy"
+              decoding="async"
+            />
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="container-wide py-16">
+    <h2 class="mb-8 text-2xl font-semibold text-foreground">Research Categories</h2>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {categoryCounts.slice(0, 8).map(({ slug, count }) => (
+        <CategoryCard slug={slug} count={count} />
+      ))}
+    </div>
+    <div class="mt-8 text-center">
+      <a
+        href={`${import.meta.env.BASE_URL}categories/`}
+        class="text-sm text-accent hover:underline"
+      >
+        Browse all categories →
+      </a>
+    </div>
+  </section>
+
+  <section class="border-t border-border bg-surface-elevated/20 py-16">
+    <div class="container-wide">
+      <h2 class="mb-8 text-2xl font-semibold text-foreground">Latest Posts</h2>
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {latestPosts.map((post) => (
+          <ArticleCard post={post} />
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

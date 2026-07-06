@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { RESEARCH_CATEGORIES } from '../../consts';
+import { getPublishedPosts, getPostsByCategory } from '../../utils/posts';
+import type { GetStaticPaths } from 'astro';
+
+export const getStaticPaths = (async () => {
+  const posts = await getPublishedPosts();
+  return RESEARCH_CATEGORIES.map((cat) => ({
+    params: { category: cat.slug },
+    props: {
+      category: cat,
+      posts: getPostsByCategory(posts, cat.slug),
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+const { category, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={category.name}
+  description={category.description}
+>
+  <div class="container-wide py-12 lg:py-16">
+    <Breadcrumbs
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Categories', href: '/categories/' },
+        { label: category.name },
+      ]}
+    />
+    <h1 class="mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+      {category.name}
+    </h1>
+    <p class="mt-4 max-w-2xl text-foreground-secondary">{category.description}</p>
+
+    {posts.length > 0 ? (
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => (
+          <ArticleCard post={post} />
+        ))}
+      </div>
+    ) : (
+      <p class="mt-12 text-foreground-secondary">No articles in this category yet.</p>
+    )}
+  </div>
+</BaseLayout>

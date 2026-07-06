@@ -1,0 +1,165 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Timeline from '../components/Timeline.astro';
+import { SITE } from '../consts';
+
+const skills = [
+  'Reverse Engineering',
+  'Malware Analysis',
+  'Active Directory Security',
+  'Memory Forensics',
+  'Detection Engineering',
+  'YARA / Sigma Rules',
+  'Windows Internals',
+  'Cloud Security (AWS/Azure)',
+  'Python / Rust',
+  'Volatility / IDA Pro / Ghidra',
+];
+
+const interests = [
+  'Offensive security research and responsible disclosure',
+  'Enterprise identity and authentication attacks',
+  'Memory-resident malware and anti-forensics techniques',
+  'Building high-fidelity detection content for SOC teams',
+  'Purple team exercises and control validation',
+];
+
+const certifications = [
+  { name: 'OSCP', issuer: 'Offensive Security', year: '2022' },
+  { name: 'CRTO', issuer: 'Zero-Point Security', year: '2023' },
+  { name: 'GCFA', issuer: 'SANS', year: '2024' },
+  { name: 'AZ-500', issuer: 'Microsoft', year: '2024' },
+];
+
+const timeline = [
+  {
+    year: '2024 — Present',
+    entries: [
+      {
+        title: 'Senior Security Researcher',
+        org: 'Independent / Consulting',
+        period: '2024 — Present',
+        description: 'Publishing research on Windows abuse primitives, AD attack paths, and detection engineering.',
+      },
+    ],
+  },
+  {
+    year: '2021 — 2024',
+    entries: [
+      {
+        title: 'Threat Research Engineer',
+        org: 'Enterprise Security Vendor',
+        period: '2021 — 2024',
+        description: 'Developed YARA rulesets, analyzed APT campaigns, and contributed to EDR detection logic.',
+      },
+    ],
+  },
+  {
+    year: '2018 — 2021',
+    entries: [
+      {
+        title: 'Security Analyst',
+        org: 'Financial Services',
+        period: '2018 — 2021',
+        description: 'Incident response, memory forensics, and purple team operations in a regulated environment.',
+      },
+    ],
+  },
+];
+---
+
+<BaseLayout title="About" description={`Learn more about ${SITE.author}, a ${SITE.role.toLowerCase()} specializing in offensive security research.`}>
+  <div class="container-wide py-12 lg:py-16">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+
+    <div class="mt-8 grid gap-12 lg:grid-cols-[1fr_280px]">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">About</h1>
+        <div class="mt-6 space-y-4 text-foreground-secondary leading-relaxed">
+          <p>
+            I'm {SITE.author}, a cybersecurity researcher focused on understanding how modern
+            adversaries operate within enterprise environments — from initial access through
+            persistence, credential abuse, and defense evasion.
+          </p>
+          <p>
+            My work spans offensive technique analysis, memory forensics, and translating
+            research findings into actionable detection content. I believe the best security
+            outcomes emerge when offensive research and defensive engineering collaborate
+            through structured purple team exercises.
+          </p>
+          <p>
+            Previously, I've worked across threat research, incident response, and detection
+            engineering roles. I publish technical write-ups, open-source tooling, and speak at
+            security conferences on topics including Active Directory attacks, malware analysis,
+            and Windows internals.
+          </p>
+        </div>
+
+        <section class="mt-12">
+          <h2 class="mb-4 text-xl font-semibold text-foreground">Skills</h2>
+          <div class="flex flex-wrap gap-2">
+            {skills.map((skill) => (
+              <span class="rounded-full border border-border bg-surface-elevated px-3 py-1 text-sm text-foreground-secondary">
+                {skill}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        <section class="mt-12">
+          <h2 class="mb-4 text-xl font-semibold text-foreground">Research Interests</h2>
+          <ul class="space-y-2 text-foreground-secondary">
+            {interests.map((interest) => (
+              <li class="flex gap-2">
+                <span class="text-accent">→</span>
+                {interest}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section class="mt-12">
+          <h2 class="mb-6 text-xl font-semibold text-foreground">Timeline</h2>
+          <Timeline items={timeline} />
+        </section>
+
+        <section class="mt-12">
+          <h2 class="mb-4 text-xl font-semibold text-foreground">Certifications</h2>
+          <div class="grid gap-4 sm:grid-cols-2">
+            {certifications.map((cert) => (
+              <div class="rounded-lg border border-border bg-surface-elevated p-4">
+                <p class="font-medium text-foreground">{cert.name}</p>
+                <p class="text-sm text-accent">{cert.issuer}</p>
+                <p class="text-xs text-muted">{cert.year}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <aside class="space-y-6">
+        <div class="rounded-xl border border-border bg-surface-elevated p-5">
+          <p class="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Connect</p>
+          <ul class="space-y-3">
+            <li>
+              <a href={SITE.github} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-sm text-foreground-secondary hover:text-accent">
+                GitHub
+              </a>
+            </li>
+            <li>
+              <a href={SITE.linkedin} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-sm text-foreground-secondary hover:text-accent">
+                LinkedIn
+              </a>
+            </li>
+            <li>
+              <a href={`mailto:${SITE.email}`} class="flex items-center gap-2 text-sm text-foreground-secondary hover:text-accent">
+                {SITE.email}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>

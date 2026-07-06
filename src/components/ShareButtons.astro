@@ -1,0 +1,60 @@
+---
+interface Props {
+  url: string;
+  title: string;
+}
+
+const { url, title } = Astro.props;
+const encodedUrl = encodeURIComponent(url);
+const encodedTitle = encodeURIComponent(title);
+---
+
+<div class="mt-8 border-t border-border pt-6">
+  <p class="mb-3 text-sm font-medium text-foreground">Share this research</p>
+  <div class="flex flex-wrap gap-2">
+    <a
+      href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground-secondary hover:border-accent/50 hover:text-accent"
+    >
+      Twitter
+    </a>
+    <a
+      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground-secondary hover:border-accent/50 hover:text-accent"
+    >
+      LinkedIn
+    </a>
+    <a
+      href={`https://news.ycombinator.com/submitlink?u=${encodedUrl}&t=${encodedTitle}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground-secondary hover:border-accent/50 hover:text-accent"
+    >
+      Hacker News
+    </a>
+    <button
+      type="button"
+      id="copy-link-btn"
+      data-url={url}
+      class="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground-secondary hover:border-accent/50 hover:text-accent"
+    >
+      Copy link
+    </button>
+  </div>
+</div>
+
+<script>
+  document.getElementById('copy-link-btn')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    const url = btn.dataset.url;
+    if (!url) return;
+    await navigator.clipboard.writeText(url);
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = original; }, 2000);
+  });
+</script>

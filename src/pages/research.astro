@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { getPublishedPosts } from '../utils/posts';
+
+const posts = await getPublishedPosts();
+---
+
+<BaseLayout
+  title="Research"
+  description="Technical security research covering Windows internals, Active Directory, malware analysis, and more."
+>
+  <div class="container-wide py-12 lg:py-16">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Research' }]} />
+    <h1 class="mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Research</h1>
+    <p class="mt-4 max-w-2xl text-foreground-secondary">
+      Deep technical analysis of offensive techniques, defensive countermeasures, and the
+      underlying systems that connect them. All research is published for educational
+      and defensive purposes.
+    </p>
+
+    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {posts.map((post) => (
+        <ArticleCard post={post} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+---
+
+<BaseLayout title="Search" description="Search security research articles.">
+  <div class="container-wide py-12 lg:py-16">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Search' }]} />
+    <h1 class="mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Search</h1>
+    <p class="mt-4 text-foreground-secondary">
+      Full-text search across all published research articles.
+    </p>
+
+    <div id="search" class="mt-8"></div>
+  </div>
+</BaseLayout>
+
+<link href={`${import.meta.env.BASE_URL}pagefind/pagefind-ui.css`} rel="stylesheet" />
+<script is:inline define:vars={{ baseUrl: import.meta.env.BASE_URL }}>
+  window.__PAGEFIND_BASE__ = baseUrl;
+</script>
+<script>
+  async function initSearch() {
+    // @ts-expect-error pagefind UI loaded dynamically
+    const { PagefindUI } = await import(`${window.__PAGEFIND_BASE__}pagefind/pagefind-ui.js`);
+    new PagefindUI({
+      element: '#search',
+      baseUrl: window.__PAGEFIND_BASE__,
+      showImages: false,
+      resetStyles: false,
+    });
+  }
+
+  initSearch();
+  document.addEventListener('astro:page-load', initSearch);
+</script>
+
+<style is:global>
+  #search .pagefind-ui {
+    --pagefind-ui-scale: 0.95;
+    --pagefind-ui-primary: #3b82f6;
+    --pagefind-ui-text: var(--foreground);
+    --pagefind-ui-background: var(--surface);
+    --pagefind-ui-border: var(--border);
+    --pagefind-ui-tag: var(--surface-elevated);
+    --pagefind-ui-font: 'Inter', sans-serif;
+  }
+
+  #search .pagefind-ui__result-title {
+    color: var(--foreground);
+  }
+
+  #search .pagefind-ui__result-excerpt {
+    color: var(--foreground-secondary);
+  }
+</style>

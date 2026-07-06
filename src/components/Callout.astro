@@ -1,0 +1,40 @@
+---
+interface Props {
+  type?: 'info' | 'warning' | 'danger' | 'tip';
+  title?: string;
+}
+
+const { type = 'info', title } = Astro.props;
+
+const styles = {
+  info: 'border-blue-500/30 bg-[var(--callout-info)]',
+  warning: 'border-amber-500/30 bg-[var(--callout-warning)]',
+  danger: 'border-red-500/30 bg-[var(--callout-danger)]',
+  tip: 'border-green-500/30 bg-[var(--callout-tip)]',
+};
+
+const icons = {
+  info: 'ℹ',
+  warning: '⚠',
+  danger: '✕',
+  tip: '✓',
+};
+---
+
+<aside
+  class:list={[
+    'my-6 rounded-lg border-l-4 p-4',
+    styles[type],
+  ]}
+  role="note"
+>
+  {title && (
+    <p class="mb-2 flex items-center gap-2 font-semibold text-foreground">
+      <span aria-hidden="true">{icons[type]}</span>
+      {title}
+    </p>
+  )}
+  <div class="text-sm text-foreground-secondary [&>p]:my-0">
+    <slot />
+  </div>
+</aside>

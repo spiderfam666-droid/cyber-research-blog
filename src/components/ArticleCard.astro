@@ -1,0 +1,60 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getReadingTime, formatReadingTime } from '../utils/readingTime';
+import { assetUrl } from '../utils/assets';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  featured?: boolean;
+}
+
+const { post, featured = false } = Astro.props;
+const { title, description, pubDate, categories, coverImage } = post.data;
+const readingTime = getReadingTime(post.body ?? '');
+const cover = assetUrl(coverImage);
+---
+
+<article
+  class:list={[
+    'group flex flex-col overflow-hidden rounded-xl border border-border bg-surface-elevated transition-all hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5',
+    featured && 'sm:flex-row',
+  ]}
+>
+  {cover && (
+    <a
+      href={`${import.meta.env.BASE_URL}blog/${post.id}/`}
+      class:list={[
+        'block overflow-hidden bg-surface',
+        featured ? 'sm:w-2/5 shrink-0' : 'aspect-[16/9]',
+      ]}
+    >
+      <img
+        src={cover}
+        alt=""
+        class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        loading="lazy"
+        decoding="async"
+      />
+    </a>
+  )}
+  <div class:list={['flex flex-1 flex-col p-5', featured && 'sm:p-6']}>
+    {categories[0] && (
+      <span class="mb-2 text-xs font-medium uppercase tracking-wider text-accent">
+        {categories[0]}
+      </span>
+    )}
+    <h3 class:list={['font-semibold text-foreground group-hover:text-accent', featured ? 'text-xl' : 'text-lg']}>
+      <a href={`${import.meta.env.BASE_URL}blog/${post.id}/`}>{title}</a>
+    </h3>
+    <p class="mt-2 flex-1 text-sm text-foreground-secondary line-clamp-2">
+      {description}
+    </p>
+    <div class="mt-4 flex items-center gap-2 text-xs text-muted">
+      <time datetime={pubDate.toISOString()}>
+        {pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+      </time>
+      <span aria-hidden="true">·</span>
+      <span>{formatReadingTime(readingTime)}</span>
+    </div>
+  </div>
+</article>

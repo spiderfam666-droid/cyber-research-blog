@@ -1,0 +1,68 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  basePath: string;
+}
+
+const { currentPage, totalPages, basePath } = Astro.props;
+const base = `${import.meta.env.BASE_URL}${basePath.replace(/^\//, '')}`;
+
+function pageUrl(page: number): string {
+  if (page === 1) return base.endsWith('/') ? base : `${base}/`;
+  return `${base}${base.endsWith('/') ? '' : '/'}page/${page}/`;
+}
+
+const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+---
+
+{totalPages > 1 && (
+  <nav class="mt-12 flex items-center justify-center gap-2" aria-label="Pagination">
+    {currentPage > 1 ? (
+      <a
+        href={pageUrl(currentPage - 1)}
+        class="rounded-lg border border-border px-4 py-2 text-sm text-foreground-secondary hover:border-accent/50 hover:text-accent"
+      >
+        Previous
+      </a>
+    ) : (
+      <span class="rounded-lg border border-border px-4 py-2 text-sm text-muted opacity-50">
+        Previous
+      </span>
+    )}
+
+    <div class="hidden items-center gap-1 sm:flex">
+      {pages.map((page) => (
+        <a
+          href={pageUrl(page)}
+          class:list={[
+            'flex h-10 w-10 items-center justify-center rounded-lg text-sm',
+            page === currentPage
+              ? 'bg-accent text-white'
+              : 'border border-border text-foreground-secondary hover:border-accent/50 hover:text-accent',
+          ]}
+          aria-current={page === currentPage ? 'page' : undefined}
+        >
+          {page}
+        </a>
+      ))}
+    </div>
+
+    <span class="text-sm text-muted sm:hidden">
+      Page {currentPage} of {totalPages}
+    </span>
+
+    {currentPage < totalPages ? (
+      <a
+        href={pageUrl(currentPage + 1)}
+        class="rounded-lg border border-border px-4 py-2 text-sm text-foreground-secondary hover:border-accent/50 hover:text-accent"
+      >
+        Next
+      </a>
+    ) : (
+      <span class="rounded-lg border border-border px-4 py-2 text-sm text-muted opacity-50">
+        Next
+      </span>
+    )}
+  </nav>
+)}

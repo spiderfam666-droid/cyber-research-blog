@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import CategoryCard from '../../components/CategoryCard.astro';
+import { RESEARCH_CATEGORIES } from '../../consts';
+import { getPublishedPosts } from '../../utils/posts';
+
+const posts = await getPublishedPosts();
+
+const categoryCounts = RESEARCH_CATEGORIES.map((cat) => ({
+  slug: cat.slug,
+  count: posts.filter((p) =>
+    p.data.categories.some(
+      (c) => c.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === cat.slug
+    )
+  ).length,
+}));
+---
+
+<BaseLayout title="Categories" description="Browse security research by category.">
+  <div class="container-wide py-12 lg:py-16">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Categories' }]} />
+    <h1 class="mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Categories</h1>
+    <p class="mt-4 max-w-2xl text-foreground-secondary">
+      Explore research organized by security domain.
+    </p>
+
+    <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {categoryCounts.map(({ slug, count }) => (
+        <CategoryCard slug={slug} count={count} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getCollection, render } from 'astro:content';
+import { assetUrl } from '../../utils/assets';
+import type { GetStaticPaths } from 'astro';
+
+export const getStaticPaths = (async () => {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}) satisfies GetStaticPaths;
+
+const { project } = Astro.props;
+const { title, description, github, demo, technologies, coverImage, screenshots, pubDate } = project.data;
+const { Content } = await render(project);
+const cover = assetUrl(coverImage);
+const screenshotUrls = screenshots.map((s) => assetUrl(s)).filter(Boolean) as string[];
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="container-wide py-12 lg:py-16">
+    <Breadcrumbs
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Projects', href: '/projects/' },
+        { label: title },
+      ]}
+    />
+
+    <header class="mt-8 max-w-3xl">
+      <h1 class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{title}</h1>
+      <p class="mt-4 text-lg text-foreground-secondary">{description}</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        {technologies.map((tech) => (
+          <span class="rounded bg-surface-elevated px-2 py-1 text-xs font-mono text-muted">{tech}</span>
+        ))}
+      </div>
+      <div class="mt-6 flex gap-4">
+        {github && (
+          <a href={github} target="_blank" rel="noopener noreferrer" class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover">
+            GitHub
+          </a>
+        )}
+        {demo && (
+          <a href={demo} target="_blank" rel="noopener noreferrer" class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:border-accent/50">
+            Live Demo
+          </a>
+        )}
+      </div>
+      <p class="mt-4 text-sm text-muted">
+        Published {pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </p>
+    </header>
+
+    {cover && (
+      <img
+        src={cover}
+        alt=""
+        class="mt-10 w-full rounded-xl border border-border"
+        loading="eager"
+      />
+    )}
+
+    <div class="prose mt-10 max-w-3xl">
+      <Content />
+    </div>
+
+    {screenshotUrls.length > 0 && (
+      <section class="mt-12">
+        <h2 class="mb-6 text-xl font-semibold text-foreground">Screenshots</h2>
+        <div class="grid gap-4 sm:grid-cols-2">
+          {screenshotUrls.map((src) => (
+            <img src={src} alt="" class="rounded-lg border border-border" loading="lazy" />
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
+</BaseLayout>

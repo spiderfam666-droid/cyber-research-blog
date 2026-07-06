@@ -1,0 +1,209 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+import ShareButtons from '../components/ShareButtons.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import TagChip from '../components/TagChip.astro';
+import CodeBlockEnhancer from '../components/CodeBlockEnhancer.astro';
+import MermaidRenderer from '../components/MermaidRenderer.astro';
+import { SITE } from '../consts';
+import { getReadingTime, formatReadingTime } from '../utils/readingTime';
+import { buildArticleJsonLd } from '../utils/seo';
+import { assetUrl } from '../utils/assets';
+import { getAdjacentPosts, getRelatedPosts, type BlogPost } from '../utils/posts';
+import { render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  allPosts: BlogPost[];
+}
+
+const { post, allPosts } = Astro.props;
+const { title, description, author, pubDate, updatedDate, tags, categories, coverImage, references } = post.data;
+const { Content, headings } = await render(post);
+const readingTime = getReadingTime(post.body ?? '');
+const { prev, next } = getAdjacentPosts(post, allPosts);
+const related = getRelatedPosts(post, allPosts);
+const canonicalUrl = `${SITE.url}/blog/${post.id}/`;
+const cover = assetUrl(coverImage);
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog/' },
+  { label: title },
+];
+
+const jsonLd = buildArticleJsonLd({
+  title,
+  description,
+  url: canonicalUrl,
+  pubDate,
+  author,
+  image: coverImage,
+});
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  image={coverImage}
+  canonical={canonicalUrl}
+  type="article"
+  pubDate={pubDate}
+  author={author}
+  tags={tags}
+  jsonLd={jsonLd}
+>
+  <article>
+    <header class="border-b border-border bg-surface-elevated/50">
+      <div class="container-wide py-12 lg:py-16">
+        <Breadcrumbs items={breadcrumbItems} />
+        <div class="mt-6 max-w-3xl">
+          <div class="mb-4 flex flex-wrap gap-2">
+            {categories.map((cat) => (
+              <a
+                href={`/categories/${cat.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}/`}
+                class="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-accent hover:border-accent/50"
+              >
+                {cat}
+              </a>
+            ))}
+          </div>
+          <h1 class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+            {title}
+          </h1>
+          <p class="mt-4 text-lg text-foreground-secondary">{description}</p>
+          <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
+            <span>{author}</span>
+            <span aria-hidden="true">·</span>
+            <time datetime={pubDate.toISOString()}>
+              {pubDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </time>
+            <span aria-hidden="true">·</span>
+            <span>{formatReadingTime(readingTime)}</span>
+            {updatedDate && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span>
+                  Updated{' '}
+                  {updatedDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </span>
+              </>
+            )}
+          </div>
+          <div class="mt-4 flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <TagChip tag={tag} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    {cover && (
+      <div class="container-wide py-8">
+        <img
+          src={cover}
+          alt=""
+          class="w-full rounded-xl border border-border object-cover max-h-[480px]"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+    )}
+
+    <div class="container-wide py-12">
+      <div class="grid gap-12 lg:grid-cols-[1fr_240px]">
+        <div class="min-w-0">
+          <div class="prose">
+            <Content />
+          </div>
+
+          {references && references.length > 0 && (
+            <section class="mt-12 border-t border-border pt-8">
+              <h2 class="mb-4 text-xl font-semibold text-foreground">References</h2>
+              <ol class="space-y-2 text-sm text-foreground-secondary">
+                {references.map((ref) => (
+                  <li>
+                    <a
+                      href={ref.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-accent hover:underline"
+                    >
+                      {ref.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+
+          <ShareButtons url={canonicalUrl} title={title} />
+
+          <nav
+            class="mt-12 grid gap-4 border-t border-border pt-8 sm:grid-cols-2"
+            aria-label="Post navigation"
+          >
+            {prev ? (
+              <a
+                href={`/blog/${prev.id}/`}
+                class="group rounded-lg border border-border p-4 hover:border-accent/50 hover:bg-surface-elevated"
+              >
+                <span class="text-xs uppercase tracking-wide text-muted">Previous</span>
+                <span class="mt-1 block font-medium text-foreground group-hover:text-accent">
+                  {prev.data.title}
+                </span>
+              </a>
+            ) : (
+              <div />
+            )}
+            {next && (
+              <a
+                href={`/blog/${next.id}/`}
+                class="group rounded-lg border border-border p-4 text-right hover:border-accent/50 hover:bg-surface-elevated sm:col-start-2"
+              >
+                <span class="text-xs uppercase tracking-wide text-muted">Next</span>
+                <span class="mt-1 block font-medium text-foreground group-hover:text-accent">
+                  {next.data.title}
+                </span>
+              </a>
+            )}
+          </nav>
+        </div>
+
+        <aside class="hidden lg:block">
+          <div class="sticky top-24">
+            <TableOfContents headings={headings} />
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    {related.length > 0 && (
+      <section class="border-t border-border bg-surface-elevated/30 py-16">
+        <div class="container-wide">
+          <h2 class="mb-8 text-2xl font-semibold text-foreground">Related Research</h2>
+          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((relatedPost) => (
+              <ArticleCard post={relatedPost} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+  </article>
+
+  <CodeBlockEnhancer />
+  <MermaidRenderer />
+</BaseLayout>
