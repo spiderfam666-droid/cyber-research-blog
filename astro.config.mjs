@@ -10,8 +10,8 @@ import remarkGfm from 'remark-gfm';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://yourusername.github.io',
-  base: '/cybersec-research-blog',
+  site: 'https://dekingofcyber.com',
+  base: '/',
   trailingSlash: 'always',
   integrations: [
     sitemap({
